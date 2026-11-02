@@ -175,3 +175,7 @@ exakte offizielle Commit-IDs festgelegt, Tokenrechte nur contents:read, keine
 Secrets, keine Artefakt-/Cache-Uploads und keine produktiven Server. Diese Suite
 ersetzt keine Browser-/Android-/Medien-/Signierprüfung. Laufresultate:
 [GitHub Actions](https://github.com/Leterel/project-05-knips/actions/workflows/node-tests.yml).
+
+## Entwicklung und Übergabe
+
+[AGENTS.md](AGENTS.md) bündelt den Einstieg für Entwickler und KI-Agenten; [TESTING.md](TESTING.md) nennt reproduzierbare Prüfungen und deren Grenzen. Der aktuelle Übergabestand steht in [HANDOFF.md](HANDOFF.md).
