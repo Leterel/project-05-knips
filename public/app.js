@@ -1,7 +1,9 @@
+import {createMessenger} from './direct-messages.js';
 const $ = selector => document.querySelector(selector);
 let me = null, mode = new URLSearchParams(location.search).get('account') === 'delete' ? 'login' : 'register', next = null, profileUser = null, selectedPhoto = null, previewUrl = null, routeVersion = 0;
 let messageTimer;
 let registration = 'open';
+const messenger=createMessenger({api,getUser:()=>me,notice,confirm:askConfirm});
 const inviteLabel = document.createElement('label'), inviteInput = document.createElement('input');
 inviteLabel.textContent = 'Einladungscode'; inviteLabel.id = 'invitation-label'; inviteLabel.hidden = true;
 inviteInput.name = 'invitationCode'; inviteInput.type = 'password'; inviteInput.autocomplete = 'off'; inviteInput.maxLength = 256; inviteInput.disabled = true;
@@ -37,16 +39,17 @@ async function logout() { try { await api('/api/logout', { method: 'POST', body:
 $('#logout').addEventListener('click', logout);
 function showSession() {
   $('#auth').hidden = !!me; $('#app').hidden = !me;
-  if (!me) { routeVersion++; $('#feed').replaceChildren(); $('#profile').replaceChildren(); $('#post-form').reset(); clearPhoto(); return; }
+  if (!me) { messenger.clear();routeVersion++; $('#feed').replaceChildren(); $('#profile').replaceChildren(); $('#post-form').reset(); clearPhoto(); return; }
   $('#self-name').textContent = me.displayName; $('#self-handle').textContent = `@${me.username}`; $('#self-avatar').textContent = initials(me.displayName); route();
 }
-function currentView() { const hash = location.hash.slice(1); if (hash === 'new') return { type: 'new' }; if (hash === 'me') return { type: 'profile', username: me?.username }; const match = hash.match(/^user\/([a-z0-9_]{3,24})$/); return match ? { type: 'profile', username: match[1] } : { type: 'feed' }; }
+function currentView() { const hash = location.hash.slice(1); if(hash==='messages')return {type:'messages'}; if (hash === 'new') return { type: 'new' }; if (hash === 'me') return { type: 'profile', username: me?.username }; const match = hash.match(/^user\/([a-z0-9_]{3,24})$/); return match ? { type: 'profile', username: match[1] } : { type: 'feed' }; }
 async function route() {
-  if (!me) return; const version = ++routeVersion, view = currentView();
+  if (!me) return; const version = ++routeVersion, view = currentView();messenger.suspend();$('#direct-messages').hidden=view.type!=='messages';$('#nav-messages').classList.toggle('active',view.type==='messages');
   profileUser = view.type === 'profile' ? view.username : null; next = null;
   $('#nav-feed').classList.toggle('active', view.type === 'feed'); $('#nav-new').classList.toggle('active', view.type === 'new'); $('#nav-me').classList.toggle('active', view.type === 'profile' && view.username === me.username);
-  $('#composer').hidden = view.type !== 'new'; $('#feed').hidden = view.type === 'new'; $('#profile').hidden = view.type !== 'profile'; $('#load-more').hidden = true; $('#refresh').hidden = view.type === 'new'; $('#profile').replaceChildren(); $('#feed').replaceChildren();
+  $('#composer').hidden = view.type !== 'new'; $('#feed').hidden = view.type === 'new'||view.type==='messages'; $('#profile').hidden = view.type !== 'profile'; $('#load-more').hidden = true; $('#refresh').hidden = view.type === 'new'; $('#profile').replaceChildren(); $('#feed').replaceChildren();
   $('#page-title').textContent = view.type === 'new' ? 'Dein Moment' : view.type === 'profile' ? 'Fotoalbum' : 'Momente'; $('#page-eyebrow').textContent = view.type === 'new' ? 'BEHALT ES NICHT FÜR DICH' : view.type === 'profile' ? 'EIN BLICK DURCH DEINE LINSE' : 'FRISCH GEKNIPST'; $('#page-subtitle').textContent = view.type === 'new' ? 'Ein Foto reicht, um etwas zu erzählen.' : view.type === 'profile' ? 'Alle geteilten Bilder, vom neuesten zum ältesten.' : 'Die neuesten Bilder aus eurem kleinen Kosmos.';
+  if(view.type==='messages'){$('#page-title').textContent='Nachrichten';$('#page-eyebrow').textContent='NUR ZWISCHEN EUCH';$('#page-subtitle').textContent='Erst anfragen. Dann gemeinsam schreiben.';await messenger.show();return;}
   if (view.type === 'new') return;
   try {
     if (view.type === 'profile') {

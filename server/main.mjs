@@ -9,12 +9,13 @@ import { fileURLToPath, pathToFileURL } from 'node:url';
 import { inspectImage, MAX_IMAGE_BYTES } from './images.mjs';
 import { acquireDataLock } from './data-lock.mjs';
 import { createCommercialExtension } from './commercial.mjs';
+import {installDirectMessages,handleDirectMessages} from './direct-messages.mjs';
 
 const derive = promisify(scrypt);
 const root = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 const SESSION_SECONDS = 30 * 24 * 60 * 60;
 const JSON_LIMIT = Math.ceil(MAX_IMAGE_BYTES / 3) * 4 + 16_384;
-const publicFiles = new Map([['/delete-account', ['delete-account.html', 'text/html; charset=utf-8']], ['/', ['index.html', 'text/html; charset=utf-8']], ['/app.js', ['app.js', 'text/javascript; charset=utf-8']], ['/style.css', ['style.css', 'text/css; charset=utf-8']], ['/icon.svg', ['icon.svg', 'image/svg+xml']]]);
+const publicFiles = new Map([['/delete-account', ['delete-account.html', 'text/html; charset=utf-8']], ['/', ['index.html', 'text/html; charset=utf-8']], ['/app.js', ['app.js', 'text/javascript; charset=utf-8']], ['/direct-messages.js',['direct-messages.js','text/javascript; charset=utf-8']], ['/style.css', ['style.css', 'text/css; charset=utf-8']], ['/icon.svg', ['icon.svg', 'image/svg+xml']]]);
 const fail = (status, message) => { throw Object.assign(new Error(message), { status }); };
 const hash = value => createHash('sha256').update(value).digest('hex');
 const userView = user => ({ id: user.id, username: user.username, displayName: user.display_name });
@@ -65,6 +66,7 @@ export async function createKnips({ dataDir = resolve(root, 'data'), publicOrigi
     CREATE INDEX IF NOT EXISTS comments_post ON comments(post_id, id);
     CREATE INDEX IF NOT EXISTS likes_post ON likes(post_id);
     CREATE INDEX IF NOT EXISTS sessions_user ON sessions(user_id);`);
+  installDirectMessages(db);
   // Retain a one-way identity pin after account deletion. Reusing a configured
   // name must never grant its old role, including after the server restarts.
   const moderators = new Set();
@@ -229,10 +231,11 @@ export async function createKnips({ dataDir = resolve(root, 'data'), publicOrigi
         const target = db.prepare('SELECT id FROM users WHERE username=?').get(blockMatch[1]);
         if (!target) fail(404, 'Profil nicht gefunden.');
         if (target.id === user.id) fail(400, 'Du kannst dich nicht selbst blockieren.');
-        if (req.method === 'PUT') db.prepare('INSERT OR IGNORE INTO blocks(user_id,blocked_id) VALUES (?,?)').run(user.id,target.id);
+        if (req.method === 'PUT') {db.exec('BEGIN IMMEDIATE');try{db.prepare('INSERT OR IGNORE INTO blocks(user_id,blocked_id) VALUES (?,?)').run(user.id,target.id);db.prepare("UPDATE dm_threads SET status='closed',updated_at=? WHERE low_id=? AND high_id=?").run(now(),Math.min(user.id,target.id),Math.max(user.id,target.id));db.exec('COMMIT');}catch(error){db.exec('ROLLBACK');throw error;}}
         else db.prepare('DELETE FROM blocks WHERE user_id=? AND blocked_id=?').run(user.id,target.id);
         return reply(res, 200, { ok: true });
       }
+      if(path.startsWith('/api/dm/')){const result=await handleDirectMessages({db,path,req,user,readJson,cleanText,fail,rate,assertSession,blocked,now});if(result)return reply(res,result.status,result.data);}
       if (path.startsWith('/media/') && (req.method === 'GET' || req.method === 'HEAD')) {
         const name = path.slice(7); if (!/^[a-f0-9]{48}\.(jpg|png|webp)$/.test(name)) fail(404, 'Foto nicht gefunden.');
         const post = db.prepare('SELECT mime,user_id FROM posts WHERE filename=?').get(name); if (!post || blocked(user.id,post.user_id)) fail(404, 'Foto nicht gefunden.');

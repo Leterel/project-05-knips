@@ -179,3 +179,15 @@ ersetzt keine Browser-/Android-/Medien-/Signierprüfung. Laufresultate:
 ## Entwicklung und Übergabe
 
 [AGENTS.md](AGENTS.md) bündelt den Einstieg für Entwickler und KI-Agenten; [TESTING.md](TESTING.md) nennt reproduzierbare Prüfungen und deren Grenzen. Der aktuelle Übergabestand steht in [HANDOFF.md](HANDOFF.md).
+
+## Lokale Direktnachrichten
+
+Unter „Nachrichten“ ein anderes synthetisches Demokonto per Nutzername und kurzer Vorstellung anfragen. Nur die empfangende Person kann zustimmen. Erst dann können beide Textnachrichten senden und lesen. Neue Nachrichten werden bewusst mit „Aktualisieren“ geladen; kein Push und keine externen Nachrichtenanbieter.
+
+Die SQLite-Datenbank liegt wie die Fotos ausschließlich im jeweiligen Projekt-Demoordner. Nachrichten sind **nicht Ende-zu-Ende-verschlüsselt**; der Serverbetreiber kann seine Datenbank lesen. Moderatorkonten erhalten über die App keinen zusätzlichen Zugriff auf fremde Gespräche. Keine echten privaten Nachrichten als Testdaten verwenden.
+
+Blockieren sperrt den Zugriff beidseitig und beendet die Zustimmung atomar. Nach Aufheben ist eine neue angenommene Anfrage nötig; der alte Verlauf desselben Kontopaars wird nach erneuter Zustimmung wieder sichtbar. „Gespräch beenden“ bewahrt die Daten ebenfalls, sperrt aber weiteres Schreiben bis zu neuer Zustimmung. Explizite Kontolöschung entfernt zugehörige Gespräche per Fremdschlüssel; neu angelegte Konten übernehmen sie nicht.
+
+Lokale Budgets: zehn offene ausgehende Anfragen, 100 Gespräche je Konto, 2000 insgesamt, 200 Nachrichten je Gespräch und 5000 insgesamt. Text höchstens 2000 Zeichen, Vorstellung 500. Die Nachrichtenseiten enthalten maximal 50 Einträge; ältere lassen sich nachladen. Eine Nachrichtenkennung schützt gegen doppelte Speicherung beim Wiederholen desselben Sendeversuchs. API-Quoten und vorhandener Origin-/Sitzungsschutz gelten zusätzlich. Kein produktiver Spamschutz-/Datenschutz-/Verfügbarkeitsnachweis, keine Anhänge, Video-DMs oder Reels.
+
+Schemaänderungen sind additiv; vorhandene Foto-/Kontentabellen werden nicht ersetzt. 29 Tests und die neuen Browserabläufe bestehen; zwei Signiertests bleiben mangels Konfiguration ausgelassen. Hosting und dauerhafte Sicherungsstrategie bleiben wie vereinbart offen.

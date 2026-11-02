@@ -1,7 +1,7 @@
 # Agentenleitfaden — Knips
 
 ## Einstieg
-Lokaler Foto-App-Test mit synthetischen Konten, Feed, Fotos, Likes, Kommentaren und Moderation. Reels/DM sind noch keine fertiggestellten Funktionen.
+Lokaler Foto-App-Test mit synthetischen Konten, Feed, Fotos, Likes, Kommentaren, Moderation und zustimmungspflichtigen Direktnachrichten. Reels sind noch nicht implementiert.
 
 Lies README.md, TESTING.md und HANDOFF.md. Anforderungen und vorhandene Funktionen unterscheiden. Technische Grundlagen: README.md. Die bestehenden Detaildokumente bleiben maßgeblich; keine leeren SPEC-/ARCHITECTURE-/TODO-Kopien erzeugen. Offene Arbeit und Verlauf: PROGRESS.md; konkrete Einnahmegrenzen: MONETIZATION.md, soweit vorhanden.
 
@@ -21,7 +21,7 @@ Tests: `npm test; node test/browser-smoke.mjs`. Bei mehreren Befehlen einzeln au
 - Projektwerkzeuge ändern keine anderen Projektquellen. Build-/Testartefakte in isolierten, ignorierten Arbeitsordnern halten. Vorhandene Ausgaben nicht unbesehen überschreiben.
 
 ## Nächste sichere Etappe
-Lokalen Ersttest mit synthetischen Daten reproduzieren; danach sichere kleine DM-/Video-Etappe auswählen, ohne produktive Infrastruktur vorauszusetzen.
+Lokale Foto-/DM-Demo mit Testpersonen abnehmen. Reels/Video bleiben nächste eigene Etappe; keine produktive Infrastruktur voraussetzen.
 
 ## Übergabe
 HANDOFF.md aktualisieren: Ausgangscommit/Branch, konkrete Änderungsliste, ausgeführte Befehle, Ergebnis, ausgelassene Tests samt Grund, Risiken und nächste Etappe. Nur tatsächlich ausgeführte Tests als bestanden ausweisen. Vor Merge Diff und Tests prüfen; externe Freigaben bleiben offen.
