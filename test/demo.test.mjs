@@ -1,10 +1,18 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { mkdtemp, mkdir, writeFile, readFile, readdir, rm } from 'node:fs/promises';
-import { tmpdir } from 'node:os';
+import { tmpdir } from './project-temp.mjs';
 import { join, resolve, dirname, basename } from 'node:path';
 import { startDemo } from '../tools/demo.mjs';
 import { acquireDataLock } from '../server/data-lock.mjs';
+
+test('demo rejects data parents outside the project before creating data',async()=>{
+  await assert.rejects(startDemo({temporaryParent:resolve(tmpdir(),'..','..','..','outside-demo')}),/Projektordner data/);
+});
+
+test('default demo keeps its isolated database inside the project',async()=>{
+  const demo=await startDemo();try{assert.equal(dirname(demo.dataDir),resolve(tmpdir(),'..','demo-runs'));assert.equal(demo.address.address,'127.0.0.1');}finally{await demo.close();}
+});
 
 test('local demo uses real isolated data, ignores deployment environment and closes its data lock', async () => {
   const parent = await mkdtemp(join(tmpdir(), 'knips-demo-test-'));

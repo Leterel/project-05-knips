@@ -1,5 +1,20 @@
 # Knips
 
+## Aktueller Auftrag — lokale Testdemo
+
+`npm start`, `npm run demo` und `Start-Demo.cmd` starten eine frische lokale
+Demo auf IPv4-Loopback. Daten liegen ausschließlich in einem eigenen Unterordner
+von `data/demo-runs/`; automatisierte Tests und Browserfixtures unter
+`data/test-runs/`. Diese Ordner sind von Git ausgeschlossen. Vorhandene Daten
+und Deployment-Umgebungsvariablen werden vom Demostart nicht verwendet.
+Symlink-/Junction-Ziele und Demo-Elternordner außerhalb von `data/` werden abgelehnt.
+Demoordner bleiben nach dem Beenden erhalten; keine automatische Bereinigung.
+
+Der bisherige konfigurierbare Serverstart heißt jetzt `npm run start:server`.
+Er ist keine Freigabe für produktiven Betrieb. Hosting, dauerhafte Speicherung,
+Backups und öffentliches Deployment sind noch nicht entschieden. Die folgenden
+älteren Server-/Deployment-Anleitungen sind technische Möglichkeiten für später.
+
 Erster eigener Test: [Kurzanleitung](ERSTTEST.md).
 
 [Android 0.1.1 und aktuelle Backend-Quellen herunterladen](https://github.com/Leterel/project-05-knips/releases/tag/v0.1.1).
@@ -24,7 +39,7 @@ Für normalen dauerhaften Betrieb den folgenden Startweg verwenden.
 Node.js 24.14 oder neuer aus der 24er Reihe installieren. Keine Server-Abhängigkeiten nötig.
 
 ```sh
-npm start
+npm run start:server
 ```
 
 Im Browser http://127.0.0.1:8790 öffnen. Daten bleiben unter `data/` (SQLite und Fotos).
@@ -34,7 +49,7 @@ Für den Android-Emulator in PowerShell:
 
 ```powershell
 $env:PUBLIC_ORIGIN='http://10.0.2.2:8790'
-npm start
+npm run start:server
 ```
 
 Dann diese Adresse in der APK eintragen. Android-Build: [ANDROID.md](ANDROID.md).

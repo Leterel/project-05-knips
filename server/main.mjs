@@ -8,6 +8,7 @@ import { join, resolve, dirname } from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 import { inspectImage, MAX_IMAGE_BYTES } from './images.mjs';
 import { acquireDataLock } from './data-lock.mjs';
+import { createCommercialExtension } from './commercial.mjs';
 
 const derive = promisify(scrypt);
 const root = resolve(dirname(fileURLToPath(import.meta.url)), '..');
@@ -39,7 +40,8 @@ function reply(res, status, value) {
   res.writeHead(status, { 'Content-Type': 'application/json; charset=utf-8' }); res.end(JSON.stringify(value));
 }
 
-export async function createKnips({ dataDir = resolve(root, 'data'), publicOrigin = '', secureCookies = publicOrigin.startsWith('https:'), moderatorUsernames = [], registration = 'open', invitationCode = '', trustProxy = false, now = () => Date.now() } = {}) {
+export async function createKnips({ dataDir = resolve(root, 'data'), publicOrigin = '', secureCookies = publicOrigin.startsWith('https:'), moderatorUsernames = [], registration = 'open', invitationCode = '', trustProxy = false, now = () => Date.now(), commercialProvider = null } = {}) {
+  const commercial=createCommercialExtension(commercialProvider);
   if (!['open', 'invite', 'closed'].includes(registration)) throw Error('KNIPS_REGISTRATION muss open, invite oder closed sein.');
   if (registration === 'invite' && (typeof invitationCode !== 'string' || invitationCode.length < 16 || invitationCode.length > 256)) throw Error('Für Einladungen wird ein Code mit 16 bis 256 Zeichen benötigt.');
   if (!Array.isArray(moderatorUsernames) || moderatorUsernames.some(name => !/^[a-z0-9_]{3,24}$/.test(name))) throw Error('Ungültige Moderatorenliste.');
@@ -136,7 +138,7 @@ export async function createKnips({ dataDir = resolve(root, 'data'), publicOrigi
         res.writeHead(200, { 'Content-Type': mime, 'Content-Length': body.length }); return res.end(req.method === 'HEAD' ? undefined : body);
       }
       if (path === '/health' && req.method === 'GET') return reply(res, 200, { ok: true, service: 'knips' });
-      if (path === '/api/config' && req.method === 'GET') return reply(res, 200, { registration });
+      if (path === '/api/config' && req.method === 'GET') return reply(res, 200, { registration, commercial:commercial.publicState() });
       if (path === '/api/register' && req.method === 'POST') {
         rate(req, 'register', 8); const data = await readJson(req);
         if (registration === 'closed') fail(403, 'Neue Konten sind auf diesem Server derzeit geschlossen.');

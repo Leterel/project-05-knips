@@ -15,14 +15,14 @@ neues PowerShell-Terminal öffnen. Ein eigener zufälliger Testdatenordner erhä
 bestehende Konten und Fotos im normalen `data`-Ordner:
 
 ```powershell
-$env:DATA_DIR = Join-Path ([System.IO.Path]::GetTempPath()) ('knips-ersttest-' + [guid]::NewGuid().ToString('N'))
+$env:DATA_DIR = Join-Path (Get-Location) ('data/ersttest-' + [guid]::NewGuid().ToString('N'))
 $env:HOST = '127.0.0.1'
 $env:PORT = '8790'
 $env:PUBLIC_ORIGIN = 'http://127.0.0.1:8790'
 $env:KNIPS_REGISTRATION = 'open'
 Remove-Item Env:KNIPS_MODERATORS, Env:KNIPS_INVITATION_CODE -ErrorAction SilentlyContinue
 $env:DATA_DIR
-npm start
+npm run start:server
 ```
 
 Den ausgegebenen Testordner notieren. Im Browser **http://127.0.0.1:8790** öffnen:
@@ -44,7 +44,7 @@ Port belegt? Den bereits laufenden Server identifizieren; nicht blind beenden.
 ## Android-Emulator
 
 Den Browser-Testserver zuerst stoppen. Im selben Testterminal
-`$env:PUBLIC_ORIGIN = 'http://10.0.2.2:8790'` setzen und `npm start` erneut starten.
+`$env:PUBLIC_ORIGIN = 'http://10.0.2.2:8790'` setzen und `npm run start:server` erneut starten.
 Im ausdrücklich ausgewählten Android-Emulator die Entwicklungs-APK öffnen und
 `http://10.0.2.2:8790` als Server eintragen. Ein Testbild über die System-Dateiauswahl
 hochladen und nach Neuladen prüfen. Diese Adresse funktioniert nur im Emulator.

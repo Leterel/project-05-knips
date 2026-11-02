@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { mkdtemp, rm, readdir, readFile } from 'node:fs/promises';
-import { tmpdir } from 'node:os';
+import { tmpdir } from './project-temp.mjs';
 import { join } from 'node:path';
 import { DatabaseSync } from 'node:sqlite';
 import { createKnips } from '../server/main.mjs';
@@ -168,7 +168,7 @@ test('invite-only and closed signup enforce server-side rules without leaking th
   const f = await fixture(t), alice = await f.register('alice');
   const invitationCode = 'test-only-invitation-code';
   await f.restart({ registration: 'invite', invitationCode });
-  assert.deepEqual((await f.request('/api/config')).body, { registration: 'invite' });
+  assert.deepEqual((await f.request('/api/config')).body, { registration: 'invite', commercial:{configured:false,automaticTracking:false,placements:['feed-sponsor','support-link']} });
   const body = { username: 'invited', displayName: 'Invited', password };
   for (const code of [undefined, 'wrong', ['test-only-invitation-code']]) {
     const denied = await f.request('/api/register', { method: 'POST', body: { ...body, invitationCode: code } });
@@ -176,7 +176,7 @@ test('invite-only and closed signup enforce server-side rules without leaking th
   }
   assert.equal((await f.request('/api/register', { method: 'POST', body: { ...body, invitationCode } })).status, 201);
   await f.restart({ registration: 'closed' });
-  assert.deepEqual((await f.request('/api/config')).body, { registration: 'closed' });
+  assert.deepEqual((await f.request('/api/config')).body, { registration: 'closed', commercial:{configured:false,automaticTracking:false,placements:['feed-sponsor','support-link']} });
   assert.equal((await f.request('/api/register', { method: 'POST', body: { ...body, username: 'blocked', invitationCode } })).status, 403);
   assert.equal((await f.request('/api/login', { method: 'POST', body: { username: 'alice', password } })).status, 200);
   assert.equal((await f.request('/api/me', { cookie: alice })).body.user.username, 'alice');

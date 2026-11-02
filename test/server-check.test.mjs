@@ -3,7 +3,7 @@ import assert from 'node:assert/strict';
 import { createServer } from 'node:http';
 import { mkdtemp, rm } from 'node:fs/promises';
 import { join } from 'node:path';
-import { tmpdir } from 'node:os';
+import { tmpdir } from './project-temp.mjs';
 import { createKnips } from '../server/main.mjs';
 import { checkServer } from '../tools/check-server.mjs';
 

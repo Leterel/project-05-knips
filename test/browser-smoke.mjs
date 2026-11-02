@@ -1,3 +1,4 @@
+import { tmpdir } from './project-temp.mjs';
 import assert from 'node:assert/strict';
 import { mkdtemp, mkdir, rm } from 'node:fs/promises';
 import { resolve, join } from 'node:path';
@@ -6,7 +7,7 @@ import { createKnips } from '../server/main.mjs';
 
 // PLAYWRIGHT_MODULE can point to an existing Playwright installation.
 const { chromium } = await import(process.env.PLAYWRIGHT_MODULE ? pathToFileURL(resolve(process.env.PLAYWRIGHT_MODULE)).href : 'playwright');
-const output = resolve('test-results/browser'); await mkdir(output, { recursive: true });
+const output = await mkdtemp(join(tmpdir(), 'browser-smoke-'));
 const dataDir = await mkdtemp(join(output, 'data-'));
 const app = await createKnips({ dataDir });
 await new Promise(resolve => app.server.listen(0, '127.0.0.1', resolve));

@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { mkdtemp, rm, mkdir, readFile, writeFile, readdir, unlink } from 'node:fs/promises';
-import { tmpdir } from 'node:os';
+import { tmpdir } from './project-temp.mjs';
 import { join, resolve } from 'node:path';
 import { execFile } from 'node:child_process';
 import { promisify } from 'node:util';

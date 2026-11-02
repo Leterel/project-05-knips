@@ -1,10 +1,11 @@
+import { tmpdir } from './project-temp.mjs';
 import assert from 'node:assert/strict';
 import { mkdtemp, mkdir, rm } from 'node:fs/promises';
 import { resolve, join } from 'node:path';
 import { pathToFileURL } from 'node:url';
 import { createKnips } from '../server/main.mjs';
 const { chromium } = await import(process.env.PLAYWRIGHT_MODULE ? pathToFileURL(resolve(process.env.PLAYWRIGHT_MODULE)).href : 'playwright');
-const output = resolve('test-results/moderation'); await mkdir(output, { recursive: true });
+const output = await mkdtemp(join(tmpdir(), 'moderation-browser-'));
 const dataDir = await mkdtemp(join(output, 'data-'));
 let app, browser, origin;
 async function start(options = {}) { app = await createKnips({ dataDir, ...options }); await new Promise(resolve => app.server.listen(0, '127.0.0.1', resolve)); origin = `http://127.0.0.1:${app.server.address().port}`; }

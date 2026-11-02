@@ -1,11 +1,14 @@
-import { mkdtemp } from 'node:fs/promises';
-import { tmpdir } from 'node:os';
-import { join, resolve } from 'node:path';
-import { pathToFileURL } from 'node:url';
+import { mkdtemp, mkdir, lstat } from 'node:fs/promises';
+import { join, resolve, relative, isAbsolute } from 'node:path';
+import { pathToFileURL, fileURLToPath } from 'node:url';
 import { createKnips } from '../server/main.mjs';
 
 // A separate real backend, never the operator's configured data directory.
-export async function startDemo({ temporaryParent = tmpdir() } = {}) {
+const projectRoot=fileURLToPath(new URL('../',import.meta.url)),dataRoot=resolve(projectRoot,'data');
+export async function startDemo({ temporaryParent = join(dataRoot,'demo-runs') } = {}) {
+  temporaryParent=resolve(temporaryParent);const inside=relative(dataRoot,temporaryParent);
+  if(inside.startsWith('..')||isAbsolute(inside))throw Error('Demodaten müssen unter dem Projektordner data liegen.');
+  let current=dataRoot;for(const part of ['',...inside.split(/[\\/]/).filter(Boolean)]){if(part)current=join(current,part);try{await lstat(current);}catch(error){if(error.code!=='ENOENT')throw error;try{await mkdir(current);}catch(created){if(created.code!=='EEXIST')throw created;}}const info=await lstat(current);if(info.isSymbolicLink()||!info.isDirectory())throw Error('Demodatenpfad muss ein echtes Projektverzeichnis sein.');}
   const dataDir = await mkdtemp(join(temporaryParent, 'knips-local-demo-'));
   const app = await createKnips({ dataDir, registration: 'open', trustProxy: false });
   try {

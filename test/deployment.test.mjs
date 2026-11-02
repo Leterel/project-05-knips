@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { mkdtemp, rm, readFile, stat } from 'node:fs/promises';
-import { tmpdir } from 'node:os';
+import { tmpdir } from './project-temp.mjs';
 import { join } from 'node:path';
 import { deploymentConfig, configureDeployment } from '../tools/configure-deployment.mjs';
 import { createKnips } from '../server/main.mjs';

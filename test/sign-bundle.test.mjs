@@ -1,7 +1,7 @@
 import test, { before, after } from 'node:test';
 import assert from 'node:assert/strict';
 import { mkdtemp, writeFile, access, readFile, rm } from 'node:fs/promises';
-import { tmpdir } from 'node:os';
+import { tmpdir } from './project-temp.mjs';
 import { join } from 'node:path';
 import { spawnSync } from 'node:child_process';
 import { signBundle } from '../tools/sign-bundle.mjs';
