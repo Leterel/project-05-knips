@@ -2,7 +2,7 @@
 
 Erster eigener Test: [Kurzanleitung](ERSTTEST.md).
 
-[Android 0.1.1 und aktuelle Backend-Quellen herunterladen](https://github.com/Leterel/knips/releases/tag/v0.1.1).
+[Android 0.1.1 und aktuelle Backend-Quellen herunterladen](https://github.com/Leterel/project-05-knips/releases/tag/v0.1.1).
 Die APK benötigt einen laufenden eigenen Knips-Server; sie enthält kein Backend.
 
 Kleine selbst hostbare Foto-App mit Android-Client. Konten, Foto-Feed, Profile,
@@ -159,4 +159,4 @@ Node-Regressionstests unter Ubuntu und Windows mit Node24 aus. Aktionen sind auf
 exakte offizielle Commit-IDs festgelegt, Tokenrechte nur contents:read, keine
 Secrets, keine Artefakt-/Cache-Uploads und keine produktiven Server. Diese Suite
 ersetzt keine Browser-/Android-/Medien-/Signierprüfung. Laufresultate:
-[GitHub Actions](https://github.com/Leterel/knips/actions/workflows/node-tests.yml).
+[GitHub Actions](https://github.com/Leterel/project-05-knips/actions/workflows/node-tests.yml).
